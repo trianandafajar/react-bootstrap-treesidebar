@@ -6,7 +6,7 @@ const Sidebar = () => {
   const [items, setItems] = useState([]);
 
   useEffect(() => {
-    // ini bisa diambil dari api
+    // this cant get by API
     setItems(db);
   }, []);
   return (
