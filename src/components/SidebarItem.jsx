@@ -1,32 +1,30 @@
+import { useState } from "react";
 import PropTypes from "prop-types";
 
 const SidebarItem = ({ item }) => {
-  const action = () => {
-    const itemBar = document.getElementById("sideitem" + item.id);
-    if (itemBar) {
-      itemBar.classList.toggle("open");
-    }
+  const [isOpen, setIsOpen] = useState(item.isOpen === 1);
+
+  const toggleOpen = () => {
+    setIsOpen((prev) => !prev);
   };
+
   if (item.childrens) {
     return (
-      <div
-        id={"sideitem" + item.id}
-        className={
-          item.isOpen && item.isOpen == 1 ? "sidebar-item open" : "sidebar-item"
-        }
-      >
-        <div className="sidebar-title" onClick={() => action()}>
+      <div className={`sidebar-item ${isOpen ? "open" : ""}`}>
+        <div className="sidebar-title" onClick={toggleOpen}>
           <span>
             {item.icon && <i className={item.icon}></i>}
             {item.title}
           </span>
-          <i className="bi-chevron-left toggle-btn icon-item"></i>
+          <i className={`bi-chevron-left toggle-btn icon-item ${isOpen ? "rotated" : ""}`}></i>
         </div>
-        <div className="sidebar-content">
-          {item.childrens.map((child, index) => (
-            <SidebarItem key={index} item={child} />
-          ))}
-        </div>
+        {isOpen && (
+          <div className="sidebar-content">
+            {item.childrens.map((child) => (
+              <SidebarItem key={child.id || child.title} item={child} />
+            ))}
+          </div>
+        )}
       </div>
     );
   } else {
@@ -40,7 +38,14 @@ const SidebarItem = ({ item }) => {
 };
 
 SidebarItem.propTypes = {
-  item: PropTypes.object.isRequired,
+  item: PropTypes.shape({
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+    title: PropTypes.string.isRequired,
+    icon: PropTypes.string,
+    path: PropTypes.string,
+    isOpen: PropTypes.number,
+    childrens: PropTypes.array,
+  }).isRequired,
 };
 
 export default SidebarItem;
