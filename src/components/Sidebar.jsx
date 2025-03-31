@@ -1,18 +1,14 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import SidebarItem from "./SidebarItem.jsx";
 import { db } from "./db.js";
 
 const Sidebar = () => {
-  const [items, setItems] = useState([]);
+  const [items] = useState(db); // Langsung inisialisasi tanpa useEffect
 
-  useEffect(() => {
-    // this cant get by API
-    setItems(db);
-  }, []);
   return (
     <div className="sidebar shadow-sm bg-body-tertiary">
-      {items.map((item, index) => (
-        <SidebarItem key={index} item={item} />
+      {items.map((item) => (
+        <SidebarItem key={item.id || item.title} item={item} />
       ))}
     </div>
   );
