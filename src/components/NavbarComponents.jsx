@@ -10,26 +10,25 @@ const NavbarComponents = () => {
           <Nav>
             <NavDropdown
               title={
-                <>
+                <span className="d-inline-flex align-items-center">
                   <Image
                     src="/img/img_avatar.png"
                     alt="User Avatar"
+                    title="User Avatar"
                     roundedCircle
                     width={30}
+                    height={30}
                     className="me-2"
                   />
                   Pojok Code
-                </>
+                </span>
               }
-              id="collapsible-nav-dropdown"
+              id="user-nav-dropdown"
               align="end"
             >
-              <NavDropdown.Item eventKey="profile" href="#">
-                Profil
-              </NavDropdown.Item>
-              <NavDropdown.Item eventKey="logout" href="/logout">
-                Logout
-              </NavDropdown.Item>
+              <NavDropdown.Item href="#">Profil</NavDropdown.Item>
+              <NavDropdown.Divider />
+              <NavDropdown.Item href="/logout">Logout</NavDropdown.Item>
             </NavDropdown>
           </Nav>
         </Navbar.Collapse>
