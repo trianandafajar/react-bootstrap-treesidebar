@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import CheckboxTree from "react-checkbox-tree";
 import "react-checkbox-tree/lib/react-checkbox-tree.css";
 
@@ -6,52 +6,42 @@ const TreeCheckbox = () => {
   const [checked, setChecked] = useState(["node1.2", "node2.2.2"]);
   const [expanded, setExpanded] = useState(["node1", "node2", "node2.2"]);
 
-  const handleCheck = (checked) => setChecked(checked);
-  const handleExpand = (expanded) => setExpanded(expanded);
+  const handleCheck = useCallback((checked) => setChecked(checked), []);
+  const handleExpand = useCallback((expanded) => setExpanded(expanded), []);
 
-  const submit = () => {
-    const uniqueArray = [...new Set([...checked, ...expanded])];
-    console.log(uniqueArray);
-  };
+  const submit = useCallback(() => {
+    const result = Array.from(new Set([...checked, ...expanded]));
+    console.log(result);
+  }, [checked, expanded]);
 
-  const data = useMemo(
-    () => [
-      { id: 1, value: "node1", label: "Node 1", parentId: null },
-      { id: 2, value: "node1.1", label: "Node 1.1", parentId: 1 },
-      { id: 3, value: "node1.2", label: "Node 1.2", parentId: 1 },
-      { id: 4, value: "node2", label: "Node 2", parentId: null },
-      { id: 5, value: "node2.1", label: "Node 2.1", parentId: 4 },
-      { id: 6, value: "node2.2", label: "Node 2.2", parentId: 4 },
-      { id: 7, value: "node2.2.1", label: "Node 2.2.1", parentId: 6 },
-      { id: 8, value: "node2.2.2", label: "Node 2.2.2", parentId: 6 },
-      { id: 9, value: "node2.2.3", label: "Node 2.2.3", parentId: 6 },
-    ],
-    []
-  );
+  const rawData = useMemo(() => [
+    { id: 1, value: "node1", label: "Node 1", parentId: null },
+    { id: 2, value: "node1.1", label: "Node 1.1", parentId: 1 },
+    { id: 3, value: "node1.2", label: "Node 1.2", parentId: 1 },
+    { id: 4, value: "node2", label: "Node 2", parentId: null },
+    { id: 5, value: "node2.1", label: "Node 2.1", parentId: 4 },
+    { id: 6, value: "node2.2", label: "Node 2.2", parentId: 4 },
+    { id: 7, value: "node2.2.1", label: "Node 2.2.1", parentId: 6 },
+    { id: 8, value: "node2.2.2", label: "Node 2.2.2", parentId: 6 },
+    { id: 9, value: "node2.2.3", label: "Node 2.2.3", parentId: 6 },
+  ], []);
 
-  const buildHierarchy = (data) => {
+  const buildTree = useCallback((data) => {
     const map = new Map();
-    data.forEach((node) => {
-      map.set(node.id, { ...node, children: [] });
-    });
+    data.forEach((item) => map.set(item.id, { value: item.value, label: item.label, children: [] }));
 
-    data.forEach((node) => {
-      if (node.parentId) {
-        const parent = map.get(node.parentId);
-        parent.children.push(map.get(node.id));
+    data.forEach((item) => {
+      if (item.parentId) {
+        map.get(item.parentId).children.push(map.get(item.id));
       }
     });
 
-    return data.filter((node) => !node.parentId).map((node) => map.get(node.id));
-  };
+    return data
+      .filter((item) => item.parentId === null)
+      .map((item) => map.get(item.id));
+  }, []);
 
-  const cleanEmptyChildren = (nodes) =>
-    nodes.map((node) => ({
-      ...node,
-      children: node.children.length > 0 ? cleanEmptyChildren(node.children) : undefined,
-    }));
-
-  const treeData = useMemo(() => cleanEmptyChildren(buildHierarchy(data)), [data]);
+  const treeData = useMemo(() => buildTree(rawData), [rawData, buildTree]);
 
   return (
     <>
